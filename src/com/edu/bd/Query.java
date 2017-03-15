@@ -33,6 +33,21 @@ public class Query {
 	
 	}
 	
+	public void deleteUser(String nick){
+		try {
+			String query = "delete from users where nick = ?;";
+			PreparedStatement preparedStmt = con.prepareStatement(query);
+			//System.out.println(query);
+			preparedStmt.setString(1, nick);
+			preparedStmt.execute();
+			System.out.println("Se ha eliminado el usuario " +nick +"de la base de datos");
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {} 
+	
+	}
+	
 	public boolean existsUser (String nick) {
 		boolean exists = false;
 		try {
@@ -86,6 +101,23 @@ public class Query {
 			while (rs.next()){
 				System.out.println(rs.getString("nick"));
 			}	
+			System.out.println("");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {} 
+	}
+	
+	public void showAllUsers () {
+		try {
+			String query = "select nick from users;";
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			System.out.println("Usuarios Registrados");
+			System.out.println("---------------");
+			while (rs.next()){
+				System.out.println(rs.getString("nick"));
+			}	
+			System.out.println("");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {} 

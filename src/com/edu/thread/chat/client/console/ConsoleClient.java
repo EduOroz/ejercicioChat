@@ -38,6 +38,14 @@ public class ConsoleClient {
         }
 	}
 	
+	public void sendPrivado(String nick_destino, String nick_origen, String text){
+		try {
+            salidaDatos.writeUTF("Privado para " +nick_destino.toUpperCase() +" de " +nick_origen.toUpperCase() +": "+ text);
+        } catch (IOException ex) {
+            //log.error("Error al intentar enviar un mensaje: " + ex.getMessage());
+        }
+	}
+	
 	public Socket getSocket() {
 		return socket;
 	}
@@ -64,10 +72,11 @@ public class ConsoleClient {
 
 	public static void main(String args[]){
 		ConsoleClient client = new ConsoleClient();
-		new ReceiveMessages(client.socket).start();
+		ReceiveMessages escucha = new ReceiveMessages(client.socket);
+		escucha.start();
 		Query q = new Query(new Conexion());
 		Scanner teclado = new Scanner(System.in);
-		String texto = null;
+		String texto = null, nick_destino;
 		System.out.println("Indica tu nick:");
 		texto = teclado.nextLine();
 		//Si el usuario existe en el sistema lo actualizamos como online, 
@@ -78,10 +87,46 @@ public class ConsoleClient {
 		
 		client.setNick(texto);
 		q.showUsersOnline();
-		while (true){
+		boolean inchat = true;
+		while (inchat){
 			System.out.println("Escribe en el chat:");
 			texto = teclado.nextLine();
-			client.send(texto);
+			switch (texto) {
+				case "USUARIOS_R": 	q.showAllUsers();
+									break;
+				case "USUARIOS_A":	q.showUsersOnline();
+									break;
+				case "CHATPRIVADO":	//Se gestionará un chat privado
+									System.out.println("Indica el nick del usuario para el envio del mensaje privado");
+									nick_destino = teclado.nextLine();
+									System.out.print("Texto a enviar a "+texto +": ");
+									texto = teclado.nextLine();
+									client.sendPrivado(nick_destino, client.getNick(), texto);
+									break;
+				case "SYSTEM":		//Mostraremos información del servidor
+									break;
+				case "LOGOUT_A":	//El usuario saldrá de la sesión activa
+									q.setUserOffline(client.getNick());
+									inchat = false;
+									break;
+				case "LOGOUT_B":	//El usuario saldrá de la sesión activa y se dará de baja de la BBDD
+									q.setUserOffline(client.getNick());
+									q.deleteUser(client.getNick());
+									inchat = false;
+									break;	
+				default: 			client.send(texto);
+									break;
+			}
+			
 		}
+		
+		//Una vez salimos del bucle cerramos el socket para cerrar la consola
+		try {
+			client.getSocket().close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//System.out.println("Adios");
 	}
 }
