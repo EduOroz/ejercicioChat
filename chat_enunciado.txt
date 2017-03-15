@@ -1,0 +1,24 @@
+1. Partiendo del código fuente del Chat, para el cliente en modo consola:
+	1.1 Cuando se indica el nick, registrarlo en BBDD (en lado servidor), si no está dado de alta
+	1.2 Cuando se conecta un cliente, debe recibir todos los usuarios conectados
+	
+2. Si el cliente escribe palabras reservadas como:
+	2.1 USUARIOS_R: recibirá el listado de todos los usuarios registrados
+	2.2 USUARIOS_A: recibirá el listado de todos los usuarios activos en la sesión
+	2.2 CHATPRIVADO: 
+		2.1 Se le pedirá el usuaria al que escribir el chat privado
+		2.2 Se enviará el mensaje privado y el servidor lo recibirá, enviándoselo solo al usuario elegido
+		2.3 El usuario receptor mostrará un mensaje personalizado del usuario emisor.
+	2.3 SYSTEM: El servidor le enviará información del servidor
+	2.4 LOGOUT_A: El usuario saldrá de la sesión activa
+	2.5 LOGOUT_R: El usuario saldrá de la sesión activa y se dará de baja de la BBDD (siempre en lado servidor)
+	
+3.  El cliente puede crear salas de chat. Para ello:
+	3.1 Escribirá la palabra reservada NEWROOM <NOMBRE SALA>
+	3.2 El servidor creará una nueva sala.
+	3.3 A partir de ese momento el cliente sólo escribirá en esa sala.
+	3.4 Un usuario puede solicitar las salas creadas y entrar en ellas
+		3.4.1 ROOMLIST Devuelve las salas creadas
+		3.4.2 <NOMBREROOM> ACCESS Pide acceso a la sala
+		3.4.3 A partir de ese momento solo escribirá en esa sala
+		3.4.5 ROOM_EXIT Sale de la sala y vuelve a la sala general
