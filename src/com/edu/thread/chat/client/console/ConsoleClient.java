@@ -40,7 +40,8 @@ public class ConsoleClient {
 	
 	public void sendPrivado(String nick_destino, String nick_origen, String text){
 		try {
-            salidaDatos.writeUTF("Privado para " +nick_destino.toUpperCase() +" de " +nick_origen.toUpperCase() +": "+ text);
+            salidaDatos.writeUTF("Privado para " +nick_destino +" de " +nick_origen.toUpperCase() +": "+ text);
+           //System.out.println("sssssPrivado para " +nick_destino +" de " +nick_origen.toUpperCase() +": "+ text);
         } catch (IOException ex) {
             //log.error("Error al intentar enviar un mensaje: " + ex.getMessage());
         }
@@ -72,8 +73,6 @@ public class ConsoleClient {
 
 	public static void main(String args[]){
 		ConsoleClient client = new ConsoleClient();
-		ReceiveMessages escucha = new ReceiveMessages(client.socket);
-		escucha.start();
 		Query q = new Query(new Conexion());
 		Scanner teclado = new Scanner(System.in);
 		String texto = null, nick_destino;
@@ -86,10 +85,15 @@ public class ConsoleClient {
 		} else {q.newUser(texto);}
 		
 		client.setNick(texto);
+		
+		//Creamos un hilo de escucha para que reciba mensajes de otros usuarios
+		ReceiveMessages escucha = new ReceiveMessages(client.socket, client.getNick());
+		escucha.start();
+		
 		q.showUsersOnline();
 		boolean inchat = true;
 		while (inchat){
-			System.out.println("Escribe en el chat:");
+			System.out.println("Escribe en el chat global:");
 			texto = teclado.nextLine();
 			switch (texto) {
 				case "USUARIOS_R": 	q.showAllUsers();
@@ -99,7 +103,7 @@ public class ConsoleClient {
 				case "CHATPRIVADO":	//Se gestionará un chat privado
 									System.out.println("Indica el nick del usuario para el envio del mensaje privado");
 									nick_destino = teclado.nextLine();
-									System.out.print("Texto a enviar a "+texto +": ");
+									System.out.print("Texto a enviar a "+nick_destino +": ");
 									texto = teclado.nextLine();
 									client.sendPrivado(nick_destino, client.getNick(), texto);
 									break;

@@ -7,9 +7,11 @@ import java.net.Socket;
 public class ReceiveMessages extends Thread {
 	
 	private Socket socket;
+	private String nick = null;
 
-	public ReceiveMessages(Socket socket){
+	public ReceiveMessages(Socket socket, String nick){
 		this.socket = socket;
+		this.nick = nick;
 	}
 	
 	public void run(){
@@ -26,10 +28,19 @@ public class ReceiveMessages extends Thread {
         
         // Bucle infinito que recibe mensajes del servidor
         boolean conectado = true;
+        String[] palabras;
         while (conectado) {
             try {
                 mensaje = entradaDatos.readUTF();
+                if (mensaje.startsWith("Privado")) {
+                	palabras = mensaje.split(" ");
+                	//Como los privados empiezan por Privado para "nick" de, la palabra[2] será el nick
+                	if (palabras[2].equals(nick)) {
+                		System.out.println(mensaje);
+                	}
+                } else {
                 System.out.println(mensaje);
+                }
             } catch (IOException ex) {
                 //log.error("Error al leer del stream de entrada: " + ex.getMessage());
                 conectado = false;
