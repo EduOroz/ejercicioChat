@@ -3,6 +3,7 @@ package com.edu.thread.chat.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
  
 /**
@@ -11,7 +12,7 @@ import java.net.Socket;
  * @author Ivan Salas Corrales <http://programando-o-intentandolo.blogspot.com.es/>
  */
 public class ServidorChat {
- 
+	
     /**
      * @param args the command line arguments
      */

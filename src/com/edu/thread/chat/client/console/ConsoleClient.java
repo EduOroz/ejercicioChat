@@ -10,12 +10,14 @@ import java.util.Scanner;
 import com.edu.bd.Conexion;
 import com.edu.bd.Query;
 import com.edu.thread.chat.client.ConexionServidor;
+import com.edu.thread.chat.server.Sala;
 
 public class ConsoleClient {
 	
 	private Socket socket;
 	private DataOutputStream salidaDatos;
 	private String nick = null;
+	private String nombreSala;
 	
 	public ConsoleClient(){
 		// Se crea el socket para conectar con el Sevidor del Chat
@@ -28,11 +30,12 @@ public class ConsoleClient {
             //log.error("No se ha podido conectar con el servidor (" + ex.getMessage() + ").");
         }
         new ConexionServidor(socket, null, "Juan");
+        
 	}
 	
-	public void send(String text){
+	public void send(String text, String sala){
 		try {
-            salidaDatos.writeUTF(getNick().toUpperCase() +": "+ text);
+            salidaDatos.writeUTF("sala: " +sala +"|" +getNick().toUpperCase() +": "+ text);
         } catch (IOException ex) {
             //log.error("Error al intentar enviar un mensaje: " + ex.getMessage());
         }
@@ -45,6 +48,14 @@ public class ConsoleClient {
         } catch (IOException ex) {
             //log.error("Error al intentar enviar un mensaje: " + ex.getMessage());
         }
+	}
+	
+	public String getNombreSala() {
+		return nombreSala;
+	}
+
+	public void setNombreSala(String nombreSala) {
+		this.nombreSala= nombreSala;
 	}
 	
 	public Socket getSocket() {
@@ -76,6 +87,7 @@ public class ConsoleClient {
 		Query q = new Query(new Conexion());
 		Scanner teclado = new Scanner(System.in);
 		String texto = null, nick_destino;
+		String [] palabras;
 		System.out.println("Indica tu nick:");
 		texto = teclado.nextLine();
 		//Si el usuario existe en el sistema lo actualizamos como online, 
@@ -85,17 +97,19 @@ public class ConsoleClient {
 		} else {q.newUser(texto);}
 		
 		client.setNick(texto);
+		client.setNombreSala("global");
 		
 		//Creamos un hilo de escucha para que reciba mensajes de otros usuarios
-		ReceiveMessages escucha = new ReceiveMessages(client.socket, client.getNick());
+		ReceiveMessages escucha = new ReceiveMessages(client.socket, client.getNick(), client.getNombreSala());
 		escucha.start();
 		
 		q.showUsersOnline();
 		boolean inchat = true;
 		while (inchat){
-			System.out.println("Escribe en el chat global:");
+			System.out.println("Escribe en el chat " + client.getNombreSala() + ":");
 			texto = teclado.nextLine();
-			switch (texto) {
+			palabras = texto.split(" ");
+			switch (palabras[0]) {
 				case "USUARIOS_R": 	q.showAllUsers();
 									break;
 				case "USUARIOS_A":	q.showUsersOnline();
@@ -117,8 +131,13 @@ public class ConsoleClient {
 									q.setUserOffline(client.getNick());
 									q.deleteUser(client.getNick());
 									inchat = false;
-									break;	
-				default: 			client.send(texto);
+									break;
+				case "NEWROOM":		texto = palabras[0]+"|"+palabras[1];
+									System.out.println("texto solicitando newroom " +texto);
+									client.send(texto, palabras[1]);
+									client.setNombreSala(palabras[1]);
+									break;
+				default: 			client.send(texto, client.getNombreSala());
 									break;
 			}
 			

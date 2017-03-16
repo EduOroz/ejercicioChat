@@ -32,16 +32,20 @@ public class ConexionCliente extends Thread implements Observer{
     public void run(){
         String mensajeRecibido;
         boolean conectado = true;
+        String[] palabras;
         // Se apunta a la lista de observadores de mensajes
         mensajes.addObserver(this);
-        
+        System.out.println("he creado un observador");
         while (conectado) {
             try {
                 // Lee un mensaje enviado por el cliente
                 mensajeRecibido = entradaDatos.readUTF();
                 // Pone el mensaje recibido en mensajes para que se notifique 
-                // a sus observadores que hay un nuevo mensaje.
+                // a sus observadores que hay un nuevo mensaje.               
                 mensajes.setMensaje(mensajeRecibido);
+                
+                System.out.println(mensajeRecibido);
+                
             } catch (IOException ex) {
                 //log.info("Cliente con la IP " + socket.getInetAddress().getHostName() + " desconectado.");
                 conectado = false; 
