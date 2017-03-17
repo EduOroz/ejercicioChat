@@ -10,7 +10,7 @@ import java.util.Scanner;
 import com.edu.bd.Conexion;
 import com.edu.bd.Query;
 import com.edu.thread.chat.client.ConexionServidor;
-import com.edu.thread.chat.server.Sala;
+
 
 public class ConsoleClient {
 	
